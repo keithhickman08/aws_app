@@ -1,4 +1,4 @@
-# Stochastic Modeling with Julia on AWS
+# Data Management with Julia on AWS
 
 This project seeks to implement AWS functionality in Python using boto3.  We create an EC2 instance and mount storage, install and interact with Jupyter notebook over Julia, download data, run models, and store the output to the volume.  
 
@@ -74,24 +74,40 @@ directory:
 
 ```sudo ln -s ~/JuliaPro-0.6.2.1/Julia/bin/julia /usr/local/bin/julia```
 
-Before starting Julia, clone the repo containing the API files/services. 
+Before starting Julia, first clone the repo containing the API files/services. 
 
-```mkdir api_test```
+```mkdir juliadata```
 
-```cd api_test```
+```cd juliadata```
 
-```git clone <url here>.  
+```git clone https://github.com/keithhickman08/JuliaData```  
 
-Now Julia is ready to be run on your machine, and you can issue the command: 
+Running a REST API service on your AWS instance is simple using the Genie package.  
+
+Make a folder on your AWS instance called JuliaData and clone the following git repository into that folder.  Then ```cd``` into the directory.  Now Julia is ready to be run on your machine, and you can issue the command: 
 
 ```julia```
 
-to access the REPL.
+Julia must be in the App's home directory. You can check this in Julia by typing ```pwd()``` to print the working directory.  
 
+Bring Genie into scope and load the app: 
 
-Start the Genie App:
-Issue a /download GET call
-Issue a /train-test-split call
+```
+julia> using Genie
+julia> Genie.loadapp()
+```
 
-### Put this in the download function.  
-data = CSV.read(download("https://archive.ics.uci.edu/ml/machine-learning-databases/00484/tripadvisor_review.csv"))
+Now the app is active in the environment and is ready to be started with ```Genie.startapp()```.  
+Note the URLs given in the shell prompt; possibly something like http://127.0.0.1:8000.  Open a browser and paste or type that URL into the address bar, and you should see a Genie Welcome page.  
+
+To download your data, add in "/getdata" to the end of the url to access the data endpoint. Calling this endpoint will download a datafile consisting of user reviews of various travel, restaurant, and entertainment venues.  Further development of this endpoint will allow users to specify datafile paths, handle different types of data, etc... 
+
+Now we can prepare the data for a machine learning model in our AWS instance by shuffling and training, testing, and splitting the model.  Included in the git repo JuliaData is a julia script that will access the recently downloaded data and split it into train and test sets. To access this script, ```^c``` (control-c) out of the Julia App, and make sure that the ```julia>``` prompt is visible.  
+
+To run a Julia script, type 
+```julia
+julia> using DelimitedFiles
+julia> include("traintest.jl")
+```
+
+Now all of the data plus easy to read train and test files are ready for ML processing! 
